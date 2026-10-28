@@ -1,8 +1,26 @@
 # @yedoma-labs/yuryk-outbox
 
+<picture>
+  <source media="(max-width: 640px)" srcset="https://raw.githubusercontent.com/yedoma-labs/assets/main/resized/banner-resized-mobile.png">
+  <img src="https://raw.githubusercontent.com/yedoma-labs/assets/main/resized/banner-resized.png" alt="Project Header">
+</picture>
+
+[![CI](https://github.com/yedoma-labs/yuryk-outbox/actions/workflows/ci.yml/badge.svg)](https://github.com/yedoma-labs/yuryk-outbox/actions/workflows/ci.yml)
+[![npm version](https://img.shields.io/npm/v/@yedoma-labs/yuryk-outbox.svg)](https://www.npmjs.com/package/@yedoma-labs/yuryk-outbox)
+[![TypeScript](https://img.shields.io/badge/TypeScript-7-blue.svg)](https://www.typescriptlang.org/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+> **юрык** (*yuryk*) — Yakutian (Sakha) for "(noch zu bestätigen)"
+
 Lightweight outbound webhook sender with correct retry semantics. Stable event IDs across retries, `Retry-After` support, per-attempt timeouts, and [Standard Webhooks](https://www.standardwebhooks.com/) signatures. Zero runtime dependencies, Node 20+.
 
 Counterpart to `@yedoma-labs/tuyar-webhook`, which verifies incoming webhooks.
+
+```
+pnpm add @yedoma-labs/yuryk-outbox
+```
+
+---
 
 ## The problem
 
@@ -111,7 +129,7 @@ All configuration and input errors throw `WebhookSenderError` with a `code`:
 | ----------------------------- | ------------------------------------------------------------- |
 | `MALFORMED_SECRET`            | Secret is not `whsec_<base64>` (thrown by `createWebhookSender`). |
 | `INVALID_URL`                 | Not absolute, not `https:` (unless `allowInsecureHttp`), or contains credentials. |
-| `INVALID_EVENT`               | Empty `type`, empty `id`, or invalid `timestamp`.             |
+| `INVALID_EVENT`               | Empty `type`, empty `id`, invalid `timestamp`, or `data` that `JSON.stringify` cannot serialize (circular references, `BigInt`). |
 | `INVALID_OPTIONS`             | Out-of-range `timeoutMs`, `maxAttempts`, or `backoff` values. |
 | `DEAD_LETTER_CALLBACK_FAILED` | `onDeadLetter` threw or rejected. The original error is in `cause`. |
 

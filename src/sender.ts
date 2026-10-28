@@ -50,11 +50,7 @@ export function createWebhookSender(options: WebhookSenderOptions): WebhookSende
 			const timestamp = Math.floor(timestampMs / 1000);
 
 			// Serialized exactly once. Retries reuse these bytes, so the signature stays valid.
-			const body = JSON.stringify({
-				type: event.type,
-				timestamp: new Date(timestamp * 1000).toISOString(),
-				data: event.data,
-			});
+			const body = serializeBody(event, timestamp);
 			const headers = {
 				"content-type": "application/json",
 				"webhook-id": id,
@@ -171,6 +167,24 @@ function assertTargetUrl(url: string, allowInsecureHttp: boolean): void {
 	}
 	if (parsed.username !== "" || parsed.password !== "") {
 		throw new WebhookSenderError("INVALID_URL", "destination URL must not contain credentials");
+	}
+}
+
+/**
+ * Serializes the envelope. Circular structures and BigInt values make `JSON.stringify` throw, which
+ * is reported as `INVALID_EVENT` so that all input errors share one error type.
+ */
+function serializeBody(event: WebhookEvent, timestamp: number): string {
+	try {
+		return JSON.stringify({
+			type: event.type,
+			timestamp: new Date(timestamp * 1000).toISOString(),
+			data: event.data,
+		});
+	} catch (cause) {
+		throw new WebhookSenderError("INVALID_EVENT", "event data cannot be serialized to JSON", {
+			cause,
+		});
 	}
 }
 

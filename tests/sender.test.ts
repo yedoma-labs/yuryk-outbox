@@ -470,6 +470,27 @@ describe("input and option validation", () => {
 		).rejects.toMatchObject({ code: "INVALID_EVENT" });
 	});
 
+	it("reports circular data as INVALID_EVENT with the TypeError as cause, without calling fetch", async () => {
+		const circular: Record<string, unknown> = {};
+		circular.self = circular;
+		const { sender, fetchMock } = harness([res(200)]);
+
+		const error = await sender.send(TARGET, { type: "x", data: circular }).catch((e) => e);
+
+		expect(error).toBeInstanceOf(WebhookSenderError);
+		expect(error).toMatchObject({ code: "INVALID_EVENT" });
+		expect(error.cause).toBeInstanceOf(TypeError);
+		expect(fetchMock).not.toHaveBeenCalled();
+	});
+
+	it("reports BigInt data as INVALID_EVENT", async () => {
+		const { sender } = harness([res(200)]);
+
+		await expect(sender.send(TARGET, { type: "x", data: { amount: 1n } })).rejects.toMatchObject({
+			code: "INVALID_EVENT",
+		});
+	});
+
 	it.each([
 		["maxAttempts 0", { maxAttempts: 0 }],
 		["maxAttempts fractional", { maxAttempts: 1.5 }],
