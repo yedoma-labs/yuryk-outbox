@@ -10,8 +10,6 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-7-blue.svg)](https://www.typescriptlang.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-> **юрык** (*yuryk*) — Yakutian (Sakha) for "(noch zu bestätigen)"
-
 Lightweight outbound webhook sender with correct retry semantics. Stable event IDs across retries, `Retry-After` support, per-attempt timeouts, and [Standard Webhooks](https://www.standardwebhooks.com/) signatures. Zero runtime dependencies, Node 20+.
 
 Counterpart to `@yedoma-labs/tuyar-webhook`, which verifies incoming webhooks.
